@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ni3store | Premium Fashion Shopping Destination</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        myntra_pink: '#ff3f6c',
+                        myntra_orange: '#f57c00',
+                        myntra_dark: '#282c3f',
+                        myntra_gray: '#9496a2',
+                        myntra_bg: '#f5f5f6'
+                    },
+                    fontFamily: {
+                        sans: ['Assistant', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: #ff3f6c; border-radius: 10px; }
+        .product-card:hover { transform: translateY(-4px); shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body class="bg-white font-sans text-myntra_dark antialiased min-h-screen flex flex-col">
+
+    <header class="sticky top-0 z-40 bg-white shadow-sm border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 lg:px-8 flex items-center justify-between h-20">
+            
+            <div class="flex items-center gap-12">
+                <a href="#" onclick="navigateTo('home'); filterCategory('all')" class="text-2xl font-extrabold tracking-wider text-myntra_dark flex items-center gap-1">
+                    <span class="bg-gradient-to-r from-myntra_pink to-myntra_orange text-white px-2 py-1 rounded">ni3</span>
+                    <span class="text-myntra_pink -ml-1">store</span>
+                </a>
+
+                <nav class="hidden lg:flex items-center gap-8 text-[14px] font-bold tracking-widest uppercase h-20">
+                    <a href="#" onclick="navigateTo('home'); filterCategory('men')" class="nav-link text-myntra_dark hover:border-b-4 hover:border-myntra_pink h-full flex items-center px-1 border-b-4 border-transparent transition-all">Men</a>
+                    <a href="#" onclick="navigateTo('home'); filterCategory('women')" class="nav-link text-myntra_dark hover:border-b-4 hover:border-myntra_pink h-full flex items-center px-1 border-b-4 border-transparent transition-all">Women</a>
+                    <a href="#" onclick="navigateTo('home'); filterCategory('kids')" class="nav-link text-myntra_dark hover:border-b-4 hover:border-myntra_pink h-full flex items-center px-1 border-b-4 border-transparent transition-all">Kids</a>
+                    <a href="#" onclick="navigateTo('home'); filterCategory('home')" class="nav-link text-myntra_dark hover:border-b-4 hover:border-myntra_pink h-full flex items-center px-1 border-b-4 border-transparent transition-all">Home & Living</a>
+                    <a href="#" onclick="navigateTo('home'); filterCategory('beauty')" class="nav-link text-myntra_dark hover:border-b-4 hover:border-myntra_pink h-full flex items-center px-1 border-b-4 border-transparent transition-all">Beauty</a>
+                </nav>
+            </div>
+
+            <div class="flex-1 max-w-md mx-8 hidden sm:block">
+                <div class="relative flex items-center bg-gray-100 rounded-md border border-transparent focus-within:border-gray-200 focus-within:bg-white transition-all">
+                    <div class="pl-4 text-gray-400 text-sm"><i class="fa-solid fa-magnifying-glass"></i></div>
+                    <input type="text" id="searchInput" oninput="handleSearch()" placeholder="Search for products, brands and more..." class="w-full bg-transparent pl-3 pr-4 py-2.5 text-sm font-light text-myntra_dark focus:outline-none">
+                </div>
+            </div>
+
+            <div class="flex items-center gap-6 text-xs font-bold text-myntra_dark">
+                <div class="relative group cursor-pointer flex flex-col items-center gap-1">
+                    <i class="fa-regular fa-user text-lg"></i>
+                    <span>Profile</span>
+                    <div class="absolute right-0 top-12 w-64 bg-white border border-gray-100 shadow-xl rounded hidden group-hover:block z-50 p-4">
+                        <p class="font-bold text-sm mb-1">Welcome</p>
+                        <p class="text-xs text-gray-500 font-normal mb-3">To access account and manage orders</p>
+                        <button onclick="alert('Authentication layer is ready for deployment.')" class="w-full py-2 border border-myntra_pink text-myntra_pink rounded uppercase font-bold text-xs hover:bg-red-50 transition-all">Login / Signup</button>
+                    </div>
+                </div>
+
+                <div onclick="alert('Wishlist items saved to current session context.')" class="cursor-pointer flex flex-col items-center gap-1 relative">
+                    <i class="fa-regular fa-heart text-lg"></i>
+                    <span>Wishlist</span>
+                    <span id="wishlist-count" class="absolute -top-1 -right-1 bg-myntra_orange text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">0</span>
+                </div>
+
+                <div onclick="toggleCart(true)" class="cursor-pointer flex flex-col items-center gap-1 relative text-myntra_pink">
+                    <i class="fa-solid fa-bag-shopping text-lg"></i>
+                    <span class="text-myntra_dark">Bag</span>
+                    <span id="cart-count" class="absolute -top-1 -right-1 bg-myntra_pink text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">0</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div id="view-home" class="view-state space-y-6">
+        <section class="w-full bg-myntra_bg py-4 px-4 lg:px-8">
+            <div class="max-w-7xl mx-auto rounded-md shadow-sm bg-gradient-to-r from-rose-100 via-orange-50 to-amber-100 flex flex-col md:flex-row items-center justify-between p-8 md:p-12 min-h-[240px]">
+                <div class="text-center md:text-left space-y-3 max-w-xl">
+                    <span class="bg-myntra_pink text-white text-xs uppercase font-extrabold px-3 py-1 rounded-full tracking-widest">Budget-Friendly Fashion</span>
+                    <h1 class="text-3xl md:text-5xl font-black text-myntra_dark tracking-tight">GLOBAL TREND PARADE</h1>
+                    <p class="text-sm text-gray-600 font-medium">Reasonable Prices • Premium Fabrics • Instant Shipping</p>
+                    <div class="flex items-center gap-4 justify-center md:justify-start pt-2">
+                        <span class="bg-white/80 backdrop-blur px-3 py-1.5 text-xl font-black text-myntra_pink rounded border border-amber-200">50-80% OFF</span>
+                    </div>
+                </div>
+                <div class="hidden md:flex gap-4 items-center">
+                    <div class="w-24 h-36 bg-cover bg-center rounded-lg shadow-md transform rotate-3 border-2 border-white" style="background-image: url('https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400')"></div>
+                    <div class="w-24 h-36 bg-cover bg-center rounded-lg shadow-md transform -rotate-3 border-2 border-white" style="background-image: url('https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=400')"></div>
+                </div>
+            </div>
+        </section>
+
+        <main class="max-w-7xl w-full mx-auto px-4 lg:px-8 py-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-gray-200 pb-4 mb-6 gap-4">
+                <div>
+                    <h2 id="category-title" class="text-lg font-bold tracking-wider uppercase">All Products</h2>
+                    <p class="text-xs text-gray-400 mt-0.5" id="product-count-text">Loading premium items...</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-xs text-gray-400">Sort by:</span>
+                    <select id="sortSelect" onchange="handleSort()" class="border border-gray-300 text-xs font-semibold rounded p-1.5 focus:outline-none bg-white">
+                        <option value="recommended">Recommended</option>
+                        <option value="low-high">Price: Low to High</option>
+                        <option value="high-low">Price: High to Low</option>
+                    </select>
+                </div>
+            </div>
+            <div id="products-display" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+        </main>
+    </div>
+
+    <div id="view-product-detail" class="view-state hidden max-w-7xl w-full mx-auto px-4 lg:px-8 py-8 flex-grow">
+        <button onclick="navigateTo('home')" class="mb-6 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-500 hover:text-myntra_pink transition-all">
+            <i class="fa-solid fa-arrow-left"></i> Back to All Clothes
+        </button>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-10 bg-white p-4 md:p-8 rounded-lg border border-gray-100 shadow-xs" id="detail-page-content">
+            </div>
+    </div>
+
+    <div id="cartDrawer" class="fixed inset-0 z-50 overflow-hidden hidden" role="dialog" aria-modal="true">
+        <div class="absolute inset-0 overflow-hidden">
+            <div onclick="toggleCart(false)" class="absolute inset-0 bg-gray-500 bg-opacity-75 backdrop-blur-xs transition-opacity"></div>
+            <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
+                <div class="pointer-events-auto w-screen max-w-md bg-white shadow-2xl flex flex-col justify-between">
+                    <div class="px-4 py-6 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
+                        <h2 class="text-sm font-bold uppercase tracking-wider"><i class="fa-solid fa-bag-shopping text-myntra_pink mr-1"></i> SHOPPING BAG (<span id="cart-drawer-count">0</span>)</h2>
+                        <button onclick="toggleCart(false)" class="text-gray-400 hover:text-myntra_pink"><i class="fa-solid fa-xmark text-xl"></i></button>
+                    </div>
+                    <div class="flex-1 overflow-y-auto px-4 py-4 space-y-4" id="cart-items-container"></div>
+                    <div class="border-t border-gray-200 px-4 py-4 bg-gray-50 space-y-4">
+                        <div class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Price Details</div>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between text-gray-600"><span>Total MRP</span><span id="summary-mrp">Rs. 0</span></div>
+                            <div class="flex justify-between text-emerald-600"><span>Discount on MRP</span><span>- Rs. <span id="summary-discount">0</span></span></div>
+                            <div class="flex justify-between text-gray-600"><span>Convenience/Delivery Fee</span><span class="text-emerald-600 font-medium">FREE</span></div>
+                            <hr class="border-dashed border-gray-200 my-1">
+                            <div class="flex justify-between text-base font-bold"><span>Total Amount</span><span id="summary-total" class="text-myntra_pink">Rs. 0</span></div>
+                        </div>
+                        <button id="checkout-btn" onclick="openPaymentGateway()" class="w-full bg-myntra_pink hover:bg-rose-700 text-white font-bold py-3 px-4 rounded text-sm uppercase tracking-widest transition-all flex items-center justify-center gap-2">
+                            Proceed to Payment <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="paymentModal" class="fixed inset-0 z-50 overflow-y-auto hidden flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black bg-opacity-60 backdrop-blur-xs"></div>
+        <div class="bg-white rounded-lg shadow-2xl max-w-md w-full relative z-10 overflow-hidden border border-gray-100">
+            <div class="bg-myntra_dark text-white px-6 py-4 flex justify-between items-center">
+                <span class="text-xs bg-emerald-500 text-white px-2 py-0.5 rounded font-bold">SECURE PIPELINE</span>
+                <button onclick="closePaymentGateway()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="p-6 space-y-4" id="payment-modal-body"></div>
+        </div>
+    </div>
+
+    <footer class="bg-gray-50 border-t border-gray-200 pt-12 pb-6 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-8 border-b border-gray-200 pb-10">
+            <div class="space-y-3">
+                <h4 class="text-xs font-bold tracking-wider uppercase">Useful Links</h4>
+                <div class="flex flex-col gap-2 text-xs text-gray-500 font-medium">
+                    <a href="#" class="hover:text-myntra_pink">About Us</a>
+                    <a href="#" class="hover:text-myntra_pink">FAQ & Help Guidelines</a>
+                    <a href="#" class="hover:text-myntra_pink">Terms & Conditions</a>
+                    <a href="#" class="hover:text-myntra_pink">15-Day Returns Policy</a>
+                </div>
+            </div>
+            <div class="bg-white p-5 rounded-lg border border-gray-200 shadow-xs space-y-3">
+                <h4 class="text-xs font-bold text-myntra_pink tracking-wider uppercase"><i class="fa-regular fa-envelope"></i> Contact Queries Form</h4>
+                <form id="queryForm" onsubmit="handleQuerySubmit(event)" class="space-y-2.5">
+                    <input type="text" id="queryName" placeholder="Your Name" required class="w-full text-xs p-2 border border-gray-200 rounded focus:border-myntra_pink bg-gray-50">
+                    <input type="email" id="queryEmail" placeholder="Your Email Address" required class="w-full text-xs p-2 border border-gray-200 rounded focus:border-myntra_pink bg-gray-50">
+                    <textarea id="queryMsg" rows="2" placeholder="Type your query here..." required class="w-full text-xs p-2 border border-gray-200 rounded focus:border-myntra_pink bg-gray-50"></textarea>
+                    <button type="submit" class="w-full bg-myntra_dark hover:bg-myntra_pink text-white text-[11px] uppercase font-bold tracking-wider py-2 rounded transition-all">Submit Query</button>
+                </form>
+            </div>
+            <div class="space-y-3">
+                <h4 class="text-xs font-bold tracking-wider uppercase">Official Store Information</h4>
+                <div class="space-y-2 text-xs font-semibold text-myntra_dark">
+                    <div><i class="fa-solid fa-phone text-myntra_pink mr-2"></i>Phone: <a href="tel:9463736502" class="text-blue-600">9463736502</a></div>
+                    <div><i class="fa-solid fa-envelope text-myntra_pink mr-2"></i>Support: <a href="mailto:support@ni3store.com" class="text-blue-600">support@ni3store.com</a></div>
+                </div>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-4 lg:px-8 pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-400 font-medium">
+            <p>© 2026 ni3store. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // EXPANDED DATA LAYER: 20 Production-Ready Fashion Items
+        const PRODUCTS_DATABASE = [
+            { id: 1, category: 'men', brand: 'ROADSTER', title: 'Casual Cotton Slim Fit Shirt', originalPrice: 1299, discountedPrice: 519, discountPct: 60, rating: 4.2, reviews: '1.2k', img: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=600', desc: 'A premium cotton slim-fit shirt tailored for everyday casual comfort.' },
+            { id: 2, category: 'women', brand: 'ANOUK', title: 'Elegant Floral Printed Ethnic Kurti', originalPrice: 1999, discountedPrice: 599, discountPct: 70, rating: 4.5, reviews: '840', img: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=600', desc: 'Traditional aesthetics meet contemporary floral print work patterns.' },
+            { id: 3, category: 'men', brand: 'HRX BY HRITHIK ROSHAN', title: 'Oversized Streetwear Cotton Hoodie', originalPrice: 2499, discountedPrice: 999, discountPct: 60, rating: 4.1, reviews: '2.3k', img: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=600', desc: 'Heavyweight loopback cotton knit designed for modern streetwear drops.' },
+            { id: 4, category: 'men', brand: 'WRANGLER', title: 'Men Blue Regular Fit Clean Jeans', originalPrice: 3499, discountedPrice: 1399, discountPct: 60, rating: 4.3, reviews: '910', img: 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=600', desc: 'Durable structured indigo denim crafted for all-weather performance.' },
+            { id: 5, category: 'women', brand: 'HERE & NOW', title: 'Women Premium High-Rise Jeans', originalPrice: 2199, discountedPrice: 879, discountPct: 60, rating: 3.9, reviews: '412', img: 'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=600', desc: 'Fashionable high-rise ankle length crop cut jeans with stretch blend.' },
+            { id: 6, category: 'kids', brand: 'MINI KLUB', title: 'Kids Soft Cotton Printed Romper Set', originalPrice: 999, discountedPrice: 499, discountPct: 50, rating: 4.6, reviews: '118', img: 'https://images.unsplash.com/photo-1519457431-44ccd64a579b?w=600', desc: 'Hypoallergenic organic dyed cotton threads knit for tender infant skin.' },
+            { id: 7, category: 'home', brand: 'D DECOR', title: 'Premium Luxury Cotton Bedsheet Set', originalPrice: 3999, discountedPrice: 1599, discountPct: 60, rating: 4.7, reviews: '310', img: 'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=600', desc: '400 thread-count ultra satin smooth dynamic finish bedding sheets.' },
+            { id: 8, category: 'beauty', brand: 'M.A.C', title: 'Matte Retro Red Signature Lipstick', originalPrice: 1850, discountedPrice: 1295, discountPct: 30, rating: 4.8, reviews: '4.7k', img: 'https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=600', desc: 'Long-wear vivid pigmentation formula with a completely flat matte finish.' },
+            { id: 9, category: 'men', brand: 'JACK & JONES', title: 'Men Typography Printed T-Shirt', originalPrice: 999, discountedPrice: 449, discountPct: 55, rating: 4.0, reviews: '1.9k', img: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=600', desc: 'Breathable combed cotton shirt featuring vintage brand typographical art.' },
+            { id: 10, category: 'women', brand: 'W', title: 'Women Geometric Print Festive Palazzo', originalPrice: 1799, discountedPrice: 719, discountPct: 60, rating: 4.2, reviews: '530', img: 'https://images.unsplash.com/photo-1584273143981-41c073dfe8f8?w=600', desc: 'Fluid flowing comfort wear tailored for traditional occasion celebrations.' },
+            { id: 11, category: 'kids', brand: 'GINI & JONY', title: 'Boys Colorblocked Sporty Jacket', originalPrice: 2499, discountedPrice: 999, discountPct: 60, rating: 4.4, reviews: '240', img: 'https://images.unsplash.com/photo-1611428813653-aa206c998586?w=600', desc: 'Windproof light utility layering option ideal for active outdoor play.' },
+            { id: 12, category: 'beauty', brand: 'CLINIQUE', title: 'Moisture Surge Hydrating Gel', originalPrice: 2700, discountedPrice: 2160, discountPct: 20, rating: 4.7, reviews: '1.5k', img: 'https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?w=600', desc: 'Oil-free gel-cream moisturizer providing deep cellular water absorption.' },
+            { id: 13, category: 'men', brand: 'PUMA', title: 'Unisex Rogue Running Sneakers', originalPrice: 4499, discountedPrice: 2249, discountPct: 50, rating: 4.3, reviews: '3.1k', img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600', desc: 'High rebound EVA midsole engineering designed for running performance.' },
+            { id: 14, category: 'women', brand: 'SABYASACHI CLONE', title: 'Luxury Crimson Georgette Saree', originalPrice: 8999, discountedPrice: 4499, discountPct: 50, rating: 4.9, reviews: '95', img: 'https://images.unsplash.com/photo-1610030469668-93535c17b6b3?w=600', desc: 'Exquisite stone-worked borders draped perfectly on fluid georgette textile.' },
+            { id: 15, category: 'home', brand: 'PHILIPS', title: 'Smart LED Ambient Desk Lamp', originalPrice: 3499, discountedPrice: 1749, discountPct: 50, rating: 4.5, reviews: '670', img: 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=600', desc: 'App-controlled custom spectrum lighting configured for professional workspaces.' },
+            { id: 16, category: 'women', brand: 'FOREVER 21', title: 'Satin High-Slit Dinner Dress', originalPrice: 2999, discountedPrice: 1199, discountPct: 60, rating: 4.1, reviews: '805', img: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=600', desc: 'A highly elegant satin gown engineered with an asymmetrical high slit.' },
+            { id: 17, category: 'kids', brand: 'US POLO ASSN', title: 'Girls Soft Tiered Pastel Dress', originalPrice: 1899, discountedPrice: 854, discountPct: 55, rating: 4.3, reviews: '140', img: 'https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?w=600', desc: 'Breathable tier layout summer dress keeping child play unhindered.' },
+            { id: 18, category: 'beauty', brand: 'THE ORDINARY', title: 'Niacinamide 10% + Zinc 1% Serum', originalPrice: 850, discountedPrice: 680, discountPct: 20, rating: 4.6, reviews: '8.9k', img: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=600', desc: 'High-strength vitamin and mineral blemish control skin treatment solution.' },
+            { id: 19, category: 'home', brand: 'PORTICO', title: 'Microfiber Reversible All-Season Comforter', originalPrice: 2999, discountedPrice: 1349, discountPct: 55, rating: 4.4, reviews: '1.1k', img: 'https://images.unsplash.com/photo-1540518614846-7eded433c457?w=600', desc: 'Ultra-plush hypoallergenic hollow siliconized microfiber cloud-fill insulation.' },
+            { id: 20, category: 'men', brand: 'MANGO MAN', title: 'Suede Camel Leather Biker Jacket', originalPrice: 7999, discountedPrice: 3999, discountPct: 50, rating: 4.8, reviews: '112', img: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=600', desc: 'Heavy robust structure genuine camel suede leather tailored with dark accent zips.' }
+        ];
+
+        // STATE CONTROLS
+        let shoppingBag = [];
+        let activeCategoryFilter = 'all';
+        let activeSearchQuery = '';
+
+        window.addEventListener('DOMContentLoaded', () => {
+            renderProducts();
+            updateGlobalCounters();
+        });
+
+        // VIEW ROUTER (SPA FUNCTIONALITY)
+        function navigateTo(viewId) {
+            document.querySelectorAll('.view-state').forEach(view => view.classList.add('hidden'));
+            document.getElementById(`view-${viewId}`).classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // CATALOG RENDERING
+        function renderProducts() {
+            const displayGrid = document.getElementById('products-display');
+            displayGrid.innerHTML = '';
+
+            let filteredList = PRODUCTS_DATABASE.filter(item => {
+                const matchesCategory = (activeCategoryFilter === 'all' || item.category === activeCategoryFilter);
+                const matchesSearch = item.title.toLowerCase().includes(activeSearchQuery) || item.brand.toLowerCase().includes(activeSearchQuery);
+                return matchesCategory && matchesSearch;
+            });
+
+            document.getElementById('product-count-text').innerText = `Showing ${filteredList.length} premium fashion items matching verified setup`;
+
+            if(filteredList.length === 0) {
+                displayGrid.innerHTML = `
+                    <div class="col-span-full py-16 text-center space-y-2">
+                        <i class="fa-solid fa-magnifying-glass text-3xl text-gray-300"></i>
+                        <p class="text-sm font-bold text-gray-500">No clothes matched your specific parameters.</p>
+                        <button onclick="resetFilters()" class="text-xs bg-myntra_pink text-white px-4 py-2 rounded font-bold uppercase">Reset Filters</button>
+                    </div>`;
+                return;
+            }
+
+            filteredList.forEach(product => {
+                const card = document.createElement('div');
+                card.className = 'product-card bg-white rounded border border-gray-100 shadow-xs overflow-hidden flex flex-col justify-between transition-all duration-300 cursor-pointer';
+                // Trigger detail viewport navigation when clicking card canvas area
+                card.onclick = (e) => {
+                    if(!e.target.closest('.ignore-click')) {
+                        openProductDetail(product.id);
+                    }
+                };
+
+                card.innerHTML = `
+                    <div class="relative bg-gray-100 aspect-[3/4]">
+                        <img src="${product.img}" alt="${product.title}" class="w-full h-full object-cover object-top">
+                        <div class="absolute bottom-2 left-2 bg-white/90 backdrop-blur px-1.5 py-0.5 rounded text-[10px] font-bold flex items-center gap-1">
+                            <span>${product.rating}</span> <i class="fa-solid fa-star text-amber-500 text-[8px]"></i>
+                        </div>
+                    </div>
+                    <div class="p-3 space-y-1 bg-white relative z-10 flex-grow flex flex-col justify-between">
+                        <div>
+                            <h3 class="font-extrabold text-xs text-myntra_dark uppercase tracking-tight truncate">${product.brand}</h3>
+                            <p class="text-xs text-gray-500 font-light truncate">${product.title}</p>
+                        </div>
+                        <div class="pt-1 flex items-baseline gap-1.5 flex-wrap">
+                            <span class="text-xs font-bold text-myntra_dark">Rs. ${product.discountedPrice}</span>
+                            <span class="text-[10px] text-gray-400 line-through">Rs. ${product.originalPrice}</span>
+                            <span class="text-[10px] font-bold text-myntra_orange">(${product.discountPct}% OFF)</span>
+                        </div>
+                        <div class="pt-2 flex gap-1 ignore-click">
+                            <button onclick="addItemToBag(${product.id})" class="flex-1 bg-myntra_pink text-white font-bold py-2 rounded text-[10px] uppercase tracking-wider hover:bg-rose-700 transition-all"><i class="fa-solid fa-bag-shopping"></i> Add To Bag</button>
+                            <button onclick="toggleWishlist(this)" class="px-2 py-2 border border-gray-200 text-gray-400 hover:text-myntra_pink rounded transition-all"><i class="fa-regular fa-heart"></i></button>
+                        </div>
+                    </div>`;
+                displayGrid.appendChild(card);
+            });
+        }
+
+        // DETAILED SINGLE PRODUCT CONFIGURATION PAGE VIEW
+        function openProductDetail(productId) {
+            const product = PRODUCTS_DATABASE.find(p => p.id === productId);
+            if(!product) return;
+
+            const targetContainer = document.getElementById('detail-page-content');
+            targetContainer.innerHTML = `
+                <div class="bg-gray-50 rounded-lg overflow-hidden max-h-[500px]">
+                    <img src="${product.img}" alt="${product.title}" class="w-full h-full object-contain object-top mx-auto">
+                </div>
+                <div class="space-y-5 flex flex-col justify-between">
+                    <div class="space-y-2">
+                        <h1 class="text-2xl font-black text-myntra_dark tracking-wide uppercase">${product.brand}</h1>
+                        <p class="text-lg text-gray-500 font-light">${product.title}</p>
+                        <div class="inline-flex items-center gap-2 border border-gray-200 rounded px-2 py-1 text-xs font-bold text-gray-700">
+                            <span>${product.rating} <i class="fa-solid fa-star text-amber-500"></i></span>
+                            <span class="text-gray-300">|</span>
+                            <span class="text-gray-400 font-normal">${product.reviews} Ratings Verified</span>
+                        </div>
+                    </div>
+                    <hr class="border-gray-100">
+                    <div class="space-y-1">
+                        <div class="flex items-baseline gap-3">
+                            <span class="text-2xl font-black text-myntra_dark">Rs. ${product.discountedPrice}</span>
+                            <span class="text-sm text-gray-400 line-through">MRP Rs. ${product.originalPrice}</span>
+                            <span class="text-base font-bold text-myntra_orange">(${product.discountPct}% OFF)</span>
+                        </div>
+                        <p class="text-emerald-600 text-xs font-bold">inclusive of all taxes</p>
+                    </div>
+                    <div class="space-y-2">
+                        <span class="text-xs font-bold uppercase tracking-wider text-gray-400 block">Select Size</span>
+                        <div class="flex gap-2">
+                            ${['S','M','L','XL'].map(sz => `<button onclick="selectSizeBadge(this)" class="w-10 h-10 rounded-full border border-gray-300 text-xs font-bold hover:border-myntra_pink flex items-center justify-center transition-all bg-white">${sz}</button>`).join('')}
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <span class="text-xs font-bold uppercase tracking-wider text-gray-400 block">Product Details</span>
+                        <p class="text-xs text-gray-600 leading-relaxed font-medium">${product.desc}</p>
+                    </div>
+                    <div class="pt-4 flex gap-4">
+                        <button onclick="addItemToBag(${product.id})" class="flex-1 bg-myntra_pink hover:bg-rose-700 text-white font-bold py-3.5 rounded text-xs uppercase tracking-widest transition-all shadow flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-bag-shopping text-sm"></i> Add To Shopping Bag
+                        </button>
+                    </div>
+                </div>`;
+            
+            navigateTo('product-detail');
+        }
+
+        function selectSizeBadge(btn) {
+            btn.parentNode.querySelectorAll('button').forEach(b => b.className = "w-10 h-10 rounded-full border border-gray-300 text-xs font-bold flex items-center justify-center bg-white");
+            btn.className = "w-10 h-10 rounded-full border-2 border-myntra_pink text-myntra_pink text-xs font-black flex items-center justify-center bg-rose-50 shadow-xs";
+        }
+
+        // NAV/SEARCH & FILTERS CONTROL 
+        function filterCategory(categoryName) {
+            activeCategoryFilter = categoryName;
+            document.querySelectorAll('.nav-link').forEach(ln => {
+                if(ln.innerText.toLowerCase().includes(categoryName.substring(0, 3))) { ln.classList.add('border-myntra_pink'); } 
+                else { ln.classList.remove('border-myntra_pink'); }
+            });
+            document.getElementById('category-title').innerText = categoryName === 'all' ? 'All Products' : `${categoryName}'s collection`;
+            renderProducts();
+        }
+
+        function handleSearch() {
+            activeSearchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
+            renderProducts();
+        }
+
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            activeSearchQuery = '';
+            activeCategoryFilter = 'all';
+            renderProducts();
+        }
+
+        function handleSort() {
+            const criteria = document.getElementById('sortSelect').value;
+            if(criteria === 'low-high') PRODUCTS_DATABASE.sort((a,b) => a.discountedPrice - b.discountedPrice);
+            else if(criteria === 'high-low') PRODUCTS_DATABASE.sort((a,b) => b.discountedPrice - a.discountedPrice);
+            else PRODUCTS_DATABASE.sort((a,b) => a.id - b.id);
+            renderProducts();
+        }
+
+        let wishCount = 0;
+        function toggleWishlist(btn) {
+            const i = btn.querySelector('i');
+            if(i.classList.contains('fa-regular')) { i.className = 'fa-solid fa-heart text-myntra_pink'; wishCount++; } 
+            else { i.className = 'fa-regular fa-heart'; wishCount--; }
+            document.getElementById('wishlist-count').innerText = wishCount;
+        }
+
+        // BASKET OPERATIONS
+        function toggleCart(openState) {
+            const dr = document.getElementById('cartDrawer');
+            if(openState) { renderCartItems(); dr.classList.remove('hidden'); } 
+            else { dr.classList.add('hidden'); }
+        }
+
+        function addItemToBag(productId) {
+            const prod = PRODUCTS_DATABASE.find(p => p.id === productId);
+            const exist = shoppingBag.find(item => item.product.id === productId);
+            if(exist) exist.quantity++; else shoppingBag.push({ product: prod, quantity: 1 });
+            
+            updateGlobalCounters();
+            
+            // Notification Toast UI State Trigger
+            const toast = document.createElement('div');
+            toast.className = 'fixed bottom-5 left-5 z-50 bg-myntra_dark text-white font-semibold text-xs px-4 py-3 rounded shadow-lg border-l-4 border-myntra_pink flex items-center gap-2';
+            toast.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-500"></i> Added to Bag!`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2000);
+        }
+
+        function updateCartQuantity(productId, amt) {
+            const exist = shoppingBag.find(item => item.product.id === productId);
+            if(!exist) return;
+            exist.quantity += amt;
+            if(exist.quantity <= 0) shoppingBag = shoppingBag.filter(item => item.product.id !== productId);
+            updateGlobalCounters();
+            renderCartItems();
+        }
+
+        function updateGlobalCounters() {
+            const total = shoppingBag.reduce((acc, current) => acc + current.quantity, 0);
+            document.getElementById('cart-count').innerText = total;
+            document.getElementById('cart-drawer-count').innerText = total;
+        }
+
+        function renderCartItems() {
+            const container = document.getElementById('cart-items-container');
+            container.innerHTML = '';
+
+            if(shoppingBag.length === 0) {
+                container.innerHTML = `<div class="h-64 flex flex-col items-center justify-center text-center"><p class="text-sm font-bold text-gray-400">Bag is empty</p></div>`;
+                calculatePricingMath(0, 0);
+                document.getElementById('checkout-btn').disabled = true;
+                document.getElementById('checkout-btn').className = "w-full bg-gray-200 text-gray-400 font-bold py-3 text-center rounded text-sm uppercase cursor-not-allowed";
+                return;
+            }
+
+            document.getElementById('checkout-btn').disabled = false;
+            document.getElementById('checkout-btn').className = "w-full bg-myntra_pink hover:bg-rose-700 text-white font-bold py-3 text-center rounded text-sm uppercase tracking-widest transition-all";
+
+            let mrpAcc = 0, discAcc = 0;
+            shoppingBag.forEach(item => {
+                const totalMRP = item.product.originalPrice * item.quantity;
+                const totalDisc = item.product.discountedPrice * item.quantity;
+                mrpAcc += totalMRP;
+                discAcc += (totalMRP - totalDisc);
+
+                const row = document.createElement('div');
+                row.className = 'flex gap-3 p-3 border border-gray-100 rounded relative bg-white';
+                row.innerHTML = `
+                    <img src="${item.product.img}" class="w-14 h-18 object-cover object-top rounded">
+                    <div class="flex-grow min-w-0">
+                        <h4 class="font-bold text-xs uppercase truncate">${item.product.brand}</h4>
+                        <p class="text-xs text-gray-500 truncate font-light">${item.product.title}</p>
+                        <div class="flex items-center gap-2 pt-1">
+                            <span class="text-xs font-bold">Rs. ${item.product.discountedPrice}</span>
+                        </div>
+                        <div class="flex items-center gap-2 pt-2">
+                            <button onclick="updateCartQuantity(${item.product.id}, -1)" class="w-5 h-5 bg-gray-100 rounded font-bold text-xs">-</button>
+                            <span class="text-xs font-bold">${item.quantity}</span>
+                            <button onclick="updateCartQuantity(${item.product.id}, 1)" class="w-5 h-5 bg-gray-100 rounded font-bold text-xs">+</button>
+                        </div>
+                    </div>
+                    <button onclick="updateCartQuantity(${item.product.id}, -${item.quantity})" class="text-gray-300 hover:text-myntra_pink absolute top-2 right-2 text-xs"><i class="fa-solid fa-trash-can"></i></button>`;
+                container.appendChild(row);
+            });
+            calculatePricingMath(mrpAcc, discAcc);
+        }
+
+        function calculatePricingMath(mrp, discount) {
+            document.getElementById('summary-mrp').innerText = `Rs. ${mrp}`;
+            document.getElementById('summary-discount').innerText = `${discount}`;
+            document.getElementById('summary-total').innerText = `Rs. ${mrp - discount}`;
+        }
+
+        // TRANSACTION CONTROL SYSTEMS
+        function openPaymentGateway() {
+            toggleCart(false);
+            const total = document.getElementById('summary-total').innerText;
+            const modalBody = document.getElementById('payment-modal-body');
+            modalBody.innerHTML = `
+                <div class="bg-rose-50 p-3 rounded flex justify-between items-center"><span class="text-xs font-bold">Payable Total:</span><span class="text-lg font-black text-myntra_pink">${total}</span></div>
+                <div class="space-y-2 pt-2">
+                    <label class="flex items-center gap-3 p-3 border border-gray-200 rounded cursor-pointer bg-gray-50"><input type="radio" name="payMethod" value="UPI" checked class="accent-myntra_pink"> <span class="text-xs font-bold">UPI / GooglePay / PhonePe</span></label>
+                    <label class="flex items-center gap-3 p-3 border border-gray-200 rounded cursor-pointer bg-gray-50"><input type="radio" name="payMethod" value="Card" class="accent-myntra_pink"> <span class="text-xs font-bold">Credit or Debit Card</span></label>
+                    <label class="flex items-center gap-3 p-3 border border-gray-200 rounded cursor-pointer bg-gray-50"><input type="radio" name="payMethod" value="COD" class="accent-myntra_pink"> <span class="text-xs font-bold">Cash On Delivery</span></label>
+                </div>
+                <button onclick="processMockPayment()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded text-xs uppercase tracking-wider transition-all mt-4">Confirm Settlement Securely</button>`;
+            document.getElementById('paymentModal').classList.remove('hidden');
+        }
+
+        function closePaymentGateway() { document.getElementById('paymentModal').classList.add('hidden'); }
+
+        function processMockPayment() {
+            const body = document.getElementById('payment-modal-body');
+            body.innerHTML = `
+                <div class="py-10 text-center space-y-3">
+                    <div class="w-10 h-10 border-4 border-myntra_pink border-t-transparent rounded-full animate-spin mx-auto"></div>
+                    <p class="text-xs font-bold text-gray-600">Contacting structural bank nodes...</p>
+                </div>`;
+            
+            setTimeout(() => {
+                body.innerHTML = `
+                    <div class="py-6 text-center space-y-4">
+                        <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-xl"><i class="fa-solid fa-check"></i></div>
+                        <div>
+                            <h4 class="text-md font-bold text-emerald-600 uppercase">Order Dispatched Successfully!</h4>
+                            <p class="text-[11px] text-gray-400 mt-1">Reference Code generated: #N3S-${Math.floor(Math.random()*899999+100000)}</p>
+                        </div>
+                        <button onclick="closePaymentGateway(); navigateTo('home');" class="w-full bg-myntra_dark text-white py-2 rounded text-xs font-bold uppercase">Continue Exploration</button>
+                    </div>`;
+                shoppingBag = [];
+                updateGlobalCounters();
+            }, 1800);
+        }
+
+        function handleQuerySubmit(e) {
+            e.preventDefault();
+            alert("Your support query ticket has been updated to our servers successfully. An advisor will reach back shortly.");
+            document.getElementById('queryForm').reset();
+        }
+    </script>
+</body>
+</html>
